@@ -1,0 +1,12 @@
+# Ignore output directories
+README.md
+test_output/
+logs/
+.nextflow/
+data/
+tests/test_data/
+tests/test_oe/
+tests/of_test_output/
+*.tmp
+*.log
+
