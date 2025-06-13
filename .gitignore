@@ -6,7 +6,7 @@ logs/
 data/
 tests/test_data/
 tests/test_oe/
-tests/of_test_output/
+tests/test_outputs/
 *.tmp
 *.log
 
