@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash 
 #SBATCH --job-name="orthofinder_test1"
 #SBATCH -p ceres
 #SBATCH -N 1
@@ -20,7 +20,7 @@ module load orthofinder/3.0.1b1
 echo "OrthoFinder version: 3.0.1b1"
 
 INPUT_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_data"
-OUTPUT_DIR="/project/arsef/projects/hypo_ml_2025/tests/of_test_output"
+OUTPUT_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_outputs/of_test_output"
 
 echo "Running OrthoFinder on: $INPUT_DIR"
 echo "Output will be saved to: $OUTPUT_DIR"
