@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Purpose: remove * from .faa protein sequences to prep for input to interproscan
 # Usage: 04_ips_faa_clean.sh /path/to/file.faa
 # Outputs: cleaned .faa file path (in temp dir)
 
