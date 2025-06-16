@@ -1,53 +1,83 @@
 #!/bin/bash
 set -x  # Print commands as they execute
 
+## Shouldn't have to change any of these at this level.
 INPUT="$1"         # .faa file to process
 CLEAN_SCRIPT="$2"  # The cleaning script path
 TEMP_DIR="$3"      # Temporary cleaned .faa data directory
 OUTPUT_DIR="$4"    # Where results should go
-IPS_CPUS="${5:-4}" # Number of CPUs for interproscan, default to 4 if not set
+IPS_CPUS="${5:-8}" # Number of CPUs for interproscan, default to 4 if not set
+BASENAME=$(basename "$INPUT" .faa) 
+LOG_DIR="$6"
+LOG_FILE="${LOG_DIR}/${BASENAME}_ips.log"
 
-# Redirect stderr to a debug log (create one log per input file)
-LOG_BASE=$(basename "$1" .faa)
-exec 2>> "/project/arsef/projects/hypo_ml_2025/tests/test_oe/${LOG_BASE}_debug.log"
+## Run 'metadata' reporting
+echo "[$(date)] Starting $BASENAME on $(hostname)"
 
-# Check required arguments
-if [[ -z "$INPUT" || -z "$CLEAN_SCRIPT" || -z "$TEMP_DIR" || -z "$OUTPUT_DIR" ]]; then
-    echo "Usage: $0 <input_file> <clean_script> <temp_dir> <output_dir> [ips_cpus]" >&2
-    echo "       ips_cpus defaults to 4 if not provided" >&2
+## Check required arguments 
+if [[ -z "$INPUT" || -z "$CLEAN_SCRIPT" || -z "$TEMP_DIR" || -z "$OUTPUT_DIR" || -z "$LOG_DIR" ]]; then
+    echo "Usage: $0 <input_file> <clean_script> <temp_dir> <output_dir> <ips_cpus> <log_dir>" >&2
+
+    echo "ips_cpus defaults to 4 if not provided" >&2
     exit 1
 fi
 
-BASENAME=$(basename "$INPUT" .faa)
-echo "[$(date)] Starting $BASENAME on $(hostname)"
 
-if [[ ! -x "$CLEAN_SCRIPT" ]]; then
-    echo "Cleaning script $CLEAN_SCRIPT is not executable." >&2
-    exit 2
-fi
-
-# run script to remove * from .faa input files
+## run script to remove * from .faa input files ("clean" them)
 CLEANED=$("$CLEAN_SCRIPT" "$INPUT" "$TEMP_DIR") || { echo "Cleaning failed"; exit 2; }
-
 if [[ ! -f "$CLEANED" ]]; then
     echo "Cleaning Error: file at $CLEANED not found." >&2
     exit 2
 fi
 
-echo "Starting Interproscan on: $INPUT"
-echo "Output will be saved to: $OUTPUT_DIR"
-# run interproscan
-interproscan.sh --cpu "$IPS_CPUS" \
---input "$CLEANED" \
---output-dir "$OUTPUT_DIR" \
---tempdir "$TEMP_DIR" \
---iprlookup \
---goterms \
---disable-precalc \
---pathways || { echo "InterProScan failed for $BASENAME" >&2; exit 3; }
+## Mark current file as in-progress, only if it isnt already there or complete
+if ! grep -Fxq "$INPUT" "$OUTPUT_DIR/completed_files.txt" && \
+   ! grep -Fxq "$INPUT" "$OUTPUT_DIR/in_progress.txt"; then
+    echo "$INPUT" >> "$OUTPUT_DIR/in_progress.txt"
+fi
+
+## Run InterProScan
+{
+    echo "[$(date)] Starting InterProScan for $BASENAME"
+    stdbuf -oL interproscan.sh --cpu "$IPS_CPUS" \
+    --input "$CLEANED" \
+    --output-dir "$OUTPUT_DIR" \
+    --tempdir "$TEMP_DIR" \
+    --iprlookup \
+    --goterms \
+    --disable-precalc \
+    --pathways
+    echo "[$(date)] Finished InterProScan for $BASENAME"
+} &> "$LOG_FILE"
+
+## You can comment-out the interproscan lines above and uncomment the line below to do a "dry-run" test without running IPS
+#echo "Pretending to run InterProScan for $CLEANED for a test!"
 
 
-echo "removing $CLEANED ..."
-rm -f "$CLEANED" || echo "Warning: could not remove $CLEANED" >&2
+## Check if interproscan succeeded by looking for the expected .tsv file
+EXPECTED_TSV="${OUTPUT_DIR}/${BASENAME}_clean.tsv"
 
-echo "[$(date)] Finished $BASENAME"
+## Updating tracking files post IPS run completion/failure
+if [[ -f "$EXPECTED_TSV" && -s "$EXPECTED_TSV" ]]; then
+    # log completed input if .tsv file is verified to exist and is not empty (should  not allow duplicates)
+    echo "InterProScan completed successfully for $BASENAME at [$(date)]"
+    if ! grep -Fxq "$INPUT" "$OUTPUT_DIR/completed_files.txt"; then
+        echo "$INPUT" >> "$OUTPUT_DIR/completed_files.txt"
+    fi
+
+    # remove from in_progress list 
+    grep -Fxv "$INPUT" "$OUTPUT_DIR/in_progress.txt" > "$OUTPUT_DIR/in_progress.tmp" && \
+    mv "$OUTPUT_DIR/in_progress.tmp" "$OUTPUT_DIR/in_progress.txt"
+
+    # remove the duplicate "cleaned" .faa files 
+    echo "removing $CLEANED ..."
+    rm -f "$CLEANED" || echo "Warning: could not remove $CLEANED" >&2
+else
+    # if no .tsv, log as a failed file (and do not remove from progress list)
+    echo "InterProScan did NOT complete successfully for $BASENAME. No .tsv output found." >&2
+    echo "$INPUT" >> "$OUTPUT_DIR/failed_files.txt"
+fi
+
+
+
+
