@@ -65,9 +65,10 @@ if [[ -f "$EXPECTED_TSV" && -s "$EXPECTED_TSV" ]]; then
         echo "$INPUT" >> "$OUTPUT_DIR/completed_files.txt"
     fi
 
-    # remove from in_progress list 
-    grep -Fxv "$INPUT" "$OUTPUT_DIR/in_progress.txt" > "$OUTPUT_DIR/in_progress.tmp" && \
-    mv "$OUTPUT_DIR/in_progress.tmp" "$OUTPUT_DIR/in_progress.txt"
+    # Remove from in_progress if it's still listed there (ensure exact match)
+    if grep -Fxq "$INPUT" "$OUTPUT_DIR/in_progress.txt"; then
+        sed -i "\|^$INPUT\$|d" "$OUTPUT_DIR/in_progress.txt"
+    fi
 
     # remove the duplicate "cleaned" .faa files 
     echo "removing $CLEANED ..."
