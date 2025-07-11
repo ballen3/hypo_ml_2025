@@ -1,4 +1,5 @@
 #!/bin/bash 
+#SBATCH --account=arsef
 #SBATCH --job-name="orthofinder_test1"
 #SBATCH -p ceres
 #SBATCH -N 1
