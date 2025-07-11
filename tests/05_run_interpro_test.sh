@@ -1,4 +1,5 @@
 #!/bin/bash 
+#SBATCH --account=arsef
 #SBATCH --job-name="run_interpro_test"
 #SBATCH -p ceres
 #SBATCH -N 1
@@ -11,7 +12,7 @@
 #SBATCH -e /project/arsef/projects/hypo_ml_2025/tests/test_oe/%x.%j.%N.e
 
 # ~~ Usage ~~ #
-# sbatch 02_run_interproscan_test.sh [num_parallel_jobs]
+# sbatch 05_run_interproscan_test.sh [num_parallel_jobs]
 # If no value is given, defaults to 2 parallel jobs
 
 # Interproscan gives an overview of the families that a protein belongs to \
