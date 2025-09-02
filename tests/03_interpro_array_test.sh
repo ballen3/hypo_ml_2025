@@ -11,6 +11,7 @@ BASENAME=$(basename "$INPUT" .faa)
 LOG_DIR="$6"
 LOG_FILE="${LOG_DIR}/${BASENAME}_ips.log"
 
+
 ## Run 'metadata' reporting
 echo "[$(date)] Starting $BASENAME on $(hostname)"
 
@@ -22,18 +23,11 @@ if [[ -z "$INPUT" || -z "$CLEAN_SCRIPT" || -z "$TEMP_DIR" || -z "$OUTPUT_DIR" ||
     exit 1
 fi
 
-
 ## run script to remove * from .faa input files ("clean" them)
 CLEANED=$("$CLEAN_SCRIPT" "$INPUT" "$TEMP_DIR") || { echo "Cleaning failed"; exit 2; }
 if [[ ! -f "$CLEANED" ]]; then
     echo "Cleaning Error: file at $CLEANED not found." >&2
     exit 2
-fi
-
-## Mark current file as in-progress, only if it isnt already there or complete
-if ! grep -Fxq "$INPUT" "$OUTPUT_DIR/completed_files.txt" && \
-   ! grep -Fxq "$INPUT" "$OUTPUT_DIR/in_progress.txt"; then
-    echo "$INPUT" >> "$OUTPUT_DIR/in_progress.txt"
 fi
 
 ## Run InterProScan
@@ -54,31 +48,15 @@ fi
 #echo "Pretending to run InterProScan for $CLEANED for a test!"
 
 
-## Check if interproscan succeeded by looking for the expected .tsv file
+# Check output
 EXPECTED_TSV="${OUTPUT_DIR}/${BASENAME}_clean.tsv"
 
-## Updating tracking files post IPS run completion/failure
 if [[ -f "$EXPECTED_TSV" && -s "$EXPECTED_TSV" ]]; then
-    # log completed input if .tsv file is verified to exist and is not empty (should  not allow duplicates)
-    echo "InterProScan completed successfully for $BASENAME at [$(date)]"
-    if ! grep -Fxq "$INPUT" "$OUTPUT_DIR/completed_files.txt"; then
-        echo "$INPUT" >> "$OUTPUT_DIR/completed_files.txt"
-    fi
-
-    # Remove from in_progress if it's still listed there (ensure exact match)
-    if grep -Fxq "$INPUT" "$OUTPUT_DIR/in_progress.txt"; then
-        sed -i "\|^$INPUT\$|d" "$OUTPUT_DIR/in_progress.txt"
-    fi
-
-    # remove the duplicate "cleaned" .faa files 
-    echo "removing $CLEANED ..."
+    echo "InterProScan succeeded for $BASENAME"
+    echo "Removing cleaned file: $CLEANED"
     rm -f "$CLEANED" || echo "Warning: could not remove $CLEANED" >&2
 else
-    # if no .tsv, log as a failed file (and do not remove from progress list)
-    echo "InterProScan did NOT complete successfully for $BASENAME. No .tsv output found." >&2
-    echo "$INPUT" >> "$OUTPUT_DIR/failed_files.txt"
+    echo "InterProScan failed or no output found for $BASENAME" >&2
 fi
 
-
-
-
+    

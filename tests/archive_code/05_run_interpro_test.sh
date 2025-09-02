@@ -5,7 +5,7 @@
 #SBATCH -N 1
 #SBATCH -n 32
 #SBATCH --mem=64G 
-#SBATCH -t 24:00:00
+#SBATCH -t 31-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH -o /project/arsef/projects/hypo_ml_2025/tests/test_oe/%x.%j.%N.o
@@ -43,6 +43,8 @@ LOG_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_oe" # Directory contain
 IPS_CPUS=20  # Number of CPUs to allocate for each InterProScan job
 NUM_JOBS="${1:-2}" # Number of parallel jobs to run; can be passed as an argument (defaults to 2)
 LOG_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_outputs/test_oe"
+JOB_ID=${SLURM_JOB_ID:-$$}
+FILES_TO_RUN="files_to_run_${JOB_ID}.txt"
 
 ## Move into the directory you want the scripts to work from
 cd "$WORK_DIR"
@@ -67,11 +69,13 @@ find "$DATA_DIR" -name "*.faa" | sort | uniq | while read -r faa_file; do
     BASENAME=$(basename "$faa_file" .faa)
     EXPECTED_TSV="${OUTPUT_DIR}/${BASENAME}_clean.tsv"
 
-    # If output .tsv exists and is non-empty, count it as complete
     if [[ -s "$EXPECTED_TSV" ]]; then
-        if ! grep -Fxq "$faa_file" "$OUTPUT_DIR/completed_files.txt"; then
-            echo "$faa_file" >> "$OUTPUT_DIR/completed_files.txt"
-        fi
+        {
+            flock 200
+            if ! grep -Fxq "$faa_file" "$OUTPUT_DIR/completed_files.txt"; then
+                echo "$faa_file" >> "$OUTPUT_DIR/completed_files.txt"
+            fi
+        } 200>"$OUTPUT_DIR/completed_files.txt.lock"
     fi
 done
 
@@ -92,14 +96,14 @@ find "$DATA_DIR" -name "*.faa" | sort | uniq | while read -r faa_file; do
     else
         echo "$faa_file"
     fi
-done > files_to_run.txt
+done > "$FILES_TO_RUN"
 
 ## Checks that the list of input files exists and is not empty
-if [[ ! -s files_to_run.txt ]]; then
-    echo "files_to_run.txt is empty or missing"
+if [[ ! -s "$FILES_TO_RUN" ]]; then
+    echo "$FILES_TO_RUN is empty or missing"
     exit 0
 else
-    echo "====> Updated files_to_run.txt <===="
+    echo "====> Updated $FILES_TO_RUN <===="
 fi
 ###
 
@@ -115,7 +119,7 @@ export PARALLEL_DISABLE=1
 # You can use --dry-run flag to make sure all inputs are correct before spending time to run it in full. 
 parallel --jobs "$NUM_JOBS" --verbose \
   "$INTERPRO_SCRIPT" '{}' "$CLEAN_SCRIPT" "$TEMP_DIR" "$OUTPUT_DIR" "$IPS_CPUS" "$LOG_DIR" \
-  :::: files_to_run.txt
+  :::: "$FILES_TO_RUN"
 
 # checks status of the parallel interpro run
 if [[ $? -eq 0 ]]; then

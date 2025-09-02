@@ -1,7 +1,12 @@
 # Ignore output directories
 README.md
 test_output/
+output/
 logs/
+databases/
+run_dbcan-master/
+tests/master.zip
+tests/*.txt
 .nextflow/
 data/
 tests/test_data/
