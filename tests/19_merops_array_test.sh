@@ -13,7 +13,17 @@
 #SBATCH -o /project/arsef/projects/hypo_ml_2025/tests/test_oe/%x.%j.%N.o
 #SBATCH -e /project/arsef/projects/hypo_ml_2025/tests/test_oe/%x.%j.%N.e
 
-module load blast+  # or source your environment
+module load blast+/2.15.0 # or source your environment
+
+echo "=== JOB START ==="
+date; hostname; pwd         
+echo "Running on SLURM_ARRAY_TASK_ID: $SLURM_ARRAY_TASK_ID"
+
+## Record software versions in output/log 
+#(!!remember to change this if you change versions!!)
+echo "*** Software Versions ***"
+echo "BLAST Version: blast+/2.15.0"
+
 
 # Set input and output directories
 DATA_DIR=/project/arsef/projects/hypo_ml_2025/tests/test_data/test_faa
@@ -37,6 +47,6 @@ blastp \
   -out "$OUT_DIR/${BASENAME}_vs_merops.tsv" \
   -evalue 1e-5 \
   -outfmt 6 \
-  -max_target_seqs 1 \
+  -max_target_seqs 5 \
   -num_threads 4
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account=arsef
-#SBATCH --job-name="bigscape_all_2"
+#SBATCH --job-name="bigscape_test_3"
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
@@ -14,11 +14,6 @@
 
 set -euo pipefail
 
-export TMPDIR="/project/arsef/projects/hypo_ml_2025/tmp"
-export SINGULARITY_TMPDIR="$TMPDIR"
-export APPTAINER_TMPDIR="$TMPDIR"
-mkdir -p "$TMPDIR"
-
 echo "=== JOB START ==="
 date; hostname; pwd
 
@@ -27,23 +22,28 @@ source /software/el9/apps/miniconda/24.7.1-2/etc/profile.d/conda.sh
 conda activate bigscape
 
 echo "*** Software Versions ***"
-echo "BigScape Version: 2.0.0b8"
+echo "BigScape Version: 2.0.0-beta.8"
 
 # Input is the folder with symlinks to all .region*.gbk files
+BIGSCAPE_DIR="/project/arsef/projects/hypo_ml_2025/programs/BiG-SCAPE"
 INPUT_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_outputs/as_test_output/test_gbks"
-OUTPUT_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_outputs/bs_test_output/combined_bigscape"
+OUTPUT_DIR="/project/arsef/projects/hypo_ml_2025/tests/test_outputs/bs_test_output"
+PFAM_DB="/project/arsef/projects/hypo_ml_2025/data/databases/Pfam-A.hmm"
 
 mkdir -p "$OUTPUT_DIR"
+
+cd "$BIGSCAPE_DIR"
 
 echo "[$(date)] Running BigScape on all genomes"
 echo "Input dir: $INPUT_DIR"
 echo "Output dir: $OUTPUT_DIR"
 
-bigscape \
-  -i "$INPUT_DIR" \
-  -o "$OUTPUT_DIR" \
-  --include_singletons \
-  --cores 8
+python bigscape.py \
+  cluster \
+  --input-dir "$INPUT_DIR" \
+  --output-dir "$OUTPUT_DIR" \
+  -p "$PFAM_DB" \
+  --include-singletons 
 
 echo "[$(date)] BigScape run finished"
 

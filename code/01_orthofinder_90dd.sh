@@ -4,8 +4,9 @@
 #SBATCH --qos=long
 #SBATCH -p ceres
 #SBATCH -N 1
-#SBATCH -n 128
-#SBATCH --mem=1800G 
+#SBATCH -n 1
+#SBATCH --cpus-per-task=64
+#SBATCH --mem=512G 
 #SBATCH -t 60-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
@@ -38,7 +39,7 @@ rsync -av "$INPUT_DIR"/ "$RUNDIR/faa/"
 # Run OrthoFinder in 90daydata
 cd "$RUNDIR"
 echo "Running OrthoFinder in: $RUNDIR"
-orthofinder -f "$RUNDIR/faa" -o "$RUNDIR/of_output" -t 128 -a 128
+orthofinder -f "$RUNDIR/faa" -o "$RUNDIR/of_output" -t 64 -a 64
 
 # Copy only final results back to /project
 RESULTS_DIR=$(find "$RUNDIR/of_output" -type d -name "Results*" | head -n 1)
@@ -51,3 +52,6 @@ fi
 
 echo "=== JOB END ==="
 date
+
+echo "Job stats:"
+seff $SLURM_JOB_ID

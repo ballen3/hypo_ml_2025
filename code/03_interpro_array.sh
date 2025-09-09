@@ -44,8 +44,6 @@ fi
     echo "[$(date)] Finished InterProScan for $BASENAME"
 } &> "$LOG_FILE"
 
-## You can comment-out the interproscan lines above and uncomment the line below to do a "dry-run" test without running IPS
-#echo "Pretending to run InterProScan for $CLEANED for a test!"
 
 
 # Check output
