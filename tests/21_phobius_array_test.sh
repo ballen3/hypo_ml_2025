@@ -68,7 +68,7 @@ test -s "$CLEANED" && echo "Cleaned file exists and is not empty" || echo "Clean
 
 # === Run Phobius ===
 echo "Running: $PHOBIUS $CLEANED > $OUT_DIR/${BASENAME}_phobius.out"
-phobius.pl "$CLEANED" > "$OUT_DIR/${BASENAME}_phobius.out"
+phobius.pl -short "$CLEANED" > "$OUT_DIR/${BASENAME}_phobius.out"
 
 OUTPUT_FILE="$OUT_DIR/${BASENAME}_phobius.out"
 
