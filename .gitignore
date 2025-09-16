@@ -15,4 +15,3 @@ tests/test_oe/
 tests/test_outputs/
 *.tmp
 *.log
-files_to_run.txt
