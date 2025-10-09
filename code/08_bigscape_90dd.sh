@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --account=arsef
-#SBATCH --job-name="bigscape_90dd_3"
+#SBATCH --job-name="bigscape_90dd_5"
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=32G 
-#SBATCH -t 24:00:00
+#SBATCH --mem=64G 
+#SBATCH -t 7-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH -o /project/arsef/projects/hypo_ml_2025/logs/%x.%j.%N.o
