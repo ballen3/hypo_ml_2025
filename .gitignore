@@ -11,6 +11,7 @@ tests/*.txt
 .nextflow/
 data/
 tests/test_data/
+tests/clustering_test_1/
 tests/test_oe/
 tests/test_outputs/
 *.tmp
