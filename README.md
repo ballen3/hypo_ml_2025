@@ -19,5 +19,8 @@ This project applies unsupervised machine learning to predict host associations 
 ## Data Source
 - Functional annotation input: derived from the Mycotools database curated by Kelsey Scott.
 
+## Project Repository
+https://github.com/ballen3/hypo_ml_2025
+
 ## Disclaimer
 This repository contains experimental code and is under active development. For questions, contact the project lead.
