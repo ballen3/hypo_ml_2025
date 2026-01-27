@@ -16,3 +16,5 @@ tests/test_oe/
 tests/test_outputs/
 *.tmp
 *.log
+tests/repeat_problem_children
+
