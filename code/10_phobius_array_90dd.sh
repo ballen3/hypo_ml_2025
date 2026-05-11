@@ -1,13 +1,13 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name=phobius_array_90dd_4
+#SBATCH --job-name=phobius_additional
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --cpus-per-task=8
-#SBATCH --array=0-918%20 
+#SBATCH --cpus-per-task=1
+#SBATCH --array=0-334%20 #335 total .faa files as of 01-23-2026
 #SBATCH --mem=32G
-#SBATCH -t 24:00:00
+#SBATCH -t 5-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH -o /project/arsef/projects/hypo_ml_2025/logs/phobius/%x.%j.%N.o
@@ -25,9 +25,9 @@ echo "*** Software Versions ***"
 echo "Phobius Version: 1.01"
 
 # === Define Paths ===
-DATA_DIR=/project/arsef/projects/hypo_ml_2025/data/faa
+DATA_DIR="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_faa"
 RUN_ID=$(date +%Y%m%d_%H%M%S)_${SLURM_ARRAY_TASK_ID}
-RUNDIR="/90daydata/arsef/phobius/phobius_${RUN_ID}"
+RUNDIR="/90daydata/arsef/phobius_addl_${RUN_ID}"
 INPUT_90dd="${RUNDIR}/input"
 TEMP_DIR="${RUNDIR}/input/temp_cleaned"
 OUTPUT_BASE_90dd="${RUNDIR}/output"
@@ -60,7 +60,7 @@ if [[ ! -f "$INPUT" ]]; then
 fi
 
 # Copy input to 90-day input dir
-cp "$INPUT" "${INPUT_90dd}/${BASENAME}.faa"
+#cp "$INPUT" "${INPUT_90dd}/${BASENAME}.faa"
 
 # Move into the output dir for this task
 cd "$OUTPUT_90dd" || { echo "Failed to cd into output dir: $OUTPUT_90dd"; exit 1; }
@@ -69,11 +69,15 @@ cd "$OUTPUT_90dd" || { echo "Failed to cd into output dir: $OUTPUT_90dd"; exit 1
 CLEANED="${TEMP_DIR}/${BASENAME}_clean.faa"
 
 # === Clean only if cleaned file doesn't exist ===
+# (remove '*' characters and replace 'J' with 'X')
 if [[ -s "$CLEANED" ]]; then
     echo "Cleaned file already exists, reusing: $CLEANED"
 else
     echo "Cleaning input file (removing '*' characters)..."
-    sed '/^>/! s/\*//g' "$INPUT" > "$CLEANED"
+    sed '/^>/! s/\*//g' "$INPUT" | tr 'J' 'X' > "$CLEANED" || {
+    echo "ERROR: sed/tr failed" >&2
+    exit 2
+}
 
     # Check if cleaning succeeded
     if [[ ! -s "$CLEANED" ]]; then
