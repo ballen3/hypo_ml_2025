@@ -1,12 +1,12 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name="orthofinder_addl_90dd_7"
+#SBATCH --job-name="orthofinder_addl_90dd_9"
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=256G 
-#SBATCH -t 5-00:00:00
+#SBATCH -t 21-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH -o /project/arsef/projects/hypo_ml_2025/logs/orthofinder/%x.%j.%N.o
@@ -21,7 +21,7 @@
     #2. Update the job name and output paths in the SBATCH directives above
     #3. Load the appropriate OrthoFinder module
     #3. Update the INPUT_DIR (additional files), CORE_DIR (core set), and PERM_OUTPUT_BASE (final output dir) variables 
-    #4. Updata the TMPDIR and XDG_CACHE_HOME paths 
+    #4. Update the TMPDIR and XDG_CACHE_HOME paths 
     #5. Optionally set a custom RUN_ID (defaults to timestamp)
     #6. Run this script with sbatch
 # Outputs:
