@@ -15,6 +15,7 @@ tests/test_data/
 tests/clustering_test*
 tests/test_oe/
 tests/test_outputs/
+tests/fixed_CDS
 *.log
 tests/repeat_problem_children
 brooke1/
