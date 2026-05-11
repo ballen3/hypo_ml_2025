@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name=interpro_array_2
+#SBATCH --job-name=interpro_array_3
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
