@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name="dbcan_1"
+#SBATCH --job-name="dbcan_db_addl335_3"
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 60
@@ -8,8 +8,8 @@
 #SBATCH -t 5-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH -o /project/arsef/projects/hypo_ml_2025/logs/%x.%j.%N.o
-#SBATCH -e /project/arsef/projects/hypo_ml_2025/logs/%x.%j.%N.e
+#SBATCH -o /project/arsef/projects/hypo_ml_2025/logs/db_addl/%x.%j.%N.o
+#SBATCH -e /project/arsef/projects/hypo_ml_2025/logs/db_addl/%x.%j.%N.e
 
 echo "=== JOB START ==="
 date; hostname; pwd
@@ -24,9 +24,9 @@ echo "dbcan Version: 5.1.2"
 
 # Define directories
 WORK_DIR="/project/arsef/projects/hypo_ml_2025/"
-INPUT="$WORK_DIR/data/faa"
-OUTPUT="$WORK_DIR/output/dbcan_$(date +%Y%m%d_%H%M%S)"
-DB_DIR="$WORK_DIR/run_dbcan-master/db"
+INPUT="$WORK_DIR/data/full_db_addl_files/db_addl_faa" #faa files directory
+OUTPUT="/90daydata/arsef/db_addl_dbcan/db_addl_dbcan_$(date +%Y%m%d_%H%M%S)"
+DB_DIR="$WORK_DIR/programs/run_dbcan-master/db"
 
 mkdir -p "$OUTPUT"
 
