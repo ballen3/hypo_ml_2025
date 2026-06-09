@@ -8,6 +8,7 @@ databases/
 run_dbcan-master/
 .nextflow/
 data/
+tests/*
 tests/master.zip
 tests/*.txt
 tests/bigslice_testing/
