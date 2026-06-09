@@ -1,11 +1,11 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name="antismash_redo_1"
+#SBATCH --job-name="antismash_kelsey_addl335_1"
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --cpus-per-task=8
-#SBATCH --array=0-918%15
+#SBATCH --array=0-334
 #SBATCH --mem=64G 
 #SBATCH -t 24:00:00
 #SBATCH --mail-user=bma66@cornell.edu
@@ -22,11 +22,11 @@ conda activate antismash
 
 ## Record software versions in output/log
 echo "*** Software Versions ***"
-echo "Antismash Version: 8.0.2"
+antismash --version
 
-ASSEMBLIES="/project/arsef/projects/hypo_ml_2025/data/fna"
-ANNOTATIONS="/project/arsef/projects/hypo_ml_2025/data/gff3"
-ANTISMASH_OUT="/project/arsef/projects/hypo_ml_2025/output/as_output"
+ASSEMBLIES="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_fna"
+ANNOTATIONS="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_gff3"
+ANTISMASH_OUT="/project/arsef/projects/hypo_ml_2025/output/as_output/as_output_addl"
 
 mkdir -p "$ANTISMASH_OUT"
 
@@ -47,7 +47,7 @@ SAMPLE_NAME=$(basename "$FASTA" ".fna")
 
 # Output directory and GFF path
 OUTDIR="$ANTISMASH_OUT/$SAMPLE_NAME"
-GFF="$ANNOTATIONS/${SAMPLE_NAME}.gff3"
+GFF="$ANNOTATIONS/${SAMPLE_NAME}.gff3" # Adjusted to match fixed GFF naming
 
 # GFF existence check
 if [ ! -f "$GFF" ]; then
