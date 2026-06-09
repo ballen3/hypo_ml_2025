@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name="antismash_kelsey_addl335_1"
+#SBATCH --job-name="antismash_array"
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
@@ -13,6 +13,9 @@
 #SBATCH -o /project/arsef/projects/hypo_ml_2025/logs/antismash/%x.%j.%N.o
 #SBATCH -e /project/arsef/projects/hypo_ml_2025/logs/antismash/%x.%j.%N.e
 
+# Change array. Should be n files - 1. If you have 100 files, array should be 0-99. 
+# Run as: sbatch 07_antismash.sh /path/fna /path/gff /path/out
+
 echo "=== JOB START ==="
 date; hostname; pwd
 
@@ -24,9 +27,20 @@ conda activate antismash
 echo "*** Software Versions ***"
 antismash --version
 
-ASSEMBLIES="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_fna"
-ANNOTATIONS="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_gff3"
-ANTISMASH_OUT="/project/arsef/projects/hypo_ml_2025/output/as_output/as_output_addl"
+# Hardcoded paths (for testing, or if you don't want to pass as args)
+#ASSEMBLIES="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_fna"
+#ANNOTATIONS="/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_gff3"
+#ANTISMASH_OUT="/project/arsef/projects/hypo_ml_2025/output/as_output/as_output_addl"
+
+# command line args
+ASSEMBLIES=${1:-} #path to fna (input)
+ANNOTATIONS=${2:-} #path to gff3 (input)
+ANTISMASH_OUT=${3:-} #path to output directory for antismash results
+
+if [ -z "$ASSEMBLIES" ] || [ -z "$ANNOTATIONS" ] || [ -z "$ANTISMASH_OUT" ]; then
+  echo "Usage: sbatch 07_antismash.sh <assemblies> <annotations> <outdir>"
+  exit 1
+fi
 
 mkdir -p "$ANTISMASH_OUT"
 
