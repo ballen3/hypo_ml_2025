@@ -14,6 +14,7 @@
 #SBATCH -e /project/arsef/projects/hypo_ml_2025/logs/antismash/%x.%j.%N.e
 
 # Change array. Should be n files - 1. If you have 100 files, array should be 0-99. 
+# Change email and log paths as needed.
 # Run as: sbatch 07_antismash.sh /path/fna /path/gff /path/out
 
 echo "=== JOB START ==="
