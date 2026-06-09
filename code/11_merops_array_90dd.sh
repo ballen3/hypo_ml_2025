@@ -1,11 +1,11 @@
 #!/bin/bash 
 #SBATCH --account=arsef
-#SBATCH --job-name=merops_array_1
+#SBATCH --job-name=merops_array_3
 #SBATCH -p ceres
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --cpus-per-task=8
-#SBATCH --array=0-918%20 
+#SBATCH --array=0-334%20 
 #SBATCH --mem=32G
 #SBATCH -t 5-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
@@ -25,13 +25,27 @@ echo "*** Software Versions ***"
 echo "BLAST Version: blast+/2.15.0"
 
 
+# -------------------------------
+# MEROPS BLAST database notes:
+# -------------------------------
+# - The database is built from pepunit.lib, a MEROPS peptide-unit FASTA.
+# - Some headers contain non-ASCII characters (e.g., en-dash 0x96).
+#   BLAST prints a warning but still adds the sequence to the DB.
+# - The database files (merops_pepunit_db.*) are complete and usable.
+# - To avoid warnings, you can replace non-ASCII chars in headers:
+#     perl -pe 's/\x96/-/' pepunit.lib > pepunit_fixed.lib
+#     makeblastdb -in pepunit_fixed.lib -dbtype prot -out merops_pepunit_db_clean
+# - BLAST expects the -db argument to point to the database **prefix**, not a specific file.
+# -------------------------------
+
 # Set input and output directories
-DATA_DIR=/project/arsef/projects/hypo_ml_2025/data/faa
-DB_PATH=/project/arsef/projects/hypo_ml_2025/data/databases/merops_pepunit_db/merops_pepunit_db
+DATA_DIR=/home/brooke.allen/hypo/data/full_db_addl_files/db_addl_faa
+DB_PATH=/project/arsef/projects/hypo_ml_2025/data/databases/merops_pepunit_db/merops_pepunit_db_clean
+# Remember to also change the array size above as needed if you change input files!
 
 # Timestamp-based run ID
 RUN_ID=$(date +%Y%m%d_%H%M%S)_${SLURM_ARRAY_TASK_ID}
-RUNDIR="/90daydata/arsef/merops/${RUN_ID}"
+RUNDIR="/90daydata/arsef/db_addl_merops/${RUN_ID}"
 INPUT_90dd="${RUNDIR}/input"
 OUTPUT_BASE_90dd="${RUNDIR}/output"
 
@@ -67,6 +81,7 @@ blastp \
   -out "${OUTPUT_90dd}/${BASENAME}_vs_merops.tsv" \
   -evalue 1e-5 \
   -outfmt 6 \
+  -qcov_hsp_perc 50 \
   -max_target_seqs 5 \
-  -num_threads 4
+  -num_threads 8
 
