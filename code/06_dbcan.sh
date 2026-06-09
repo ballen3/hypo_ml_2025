@@ -3,7 +3,7 @@
 #SBATCH --job-name="dbcan_db_addl335_3"
 #SBATCH -p ceres
 #SBATCH -N 1
-#SBATCH -n 60
+#SBATCH -n 1
 #SBATCH --mem=64G 
 #SBATCH -t 5-00:00:00
 #SBATCH --mail-user=bma66@cornell.edu
@@ -14,7 +14,7 @@
 echo "=== JOB START ==="
 date; hostname; pwd
 
-## Load necessary modules
+## Load necessary modules/environments
 source activate run_dbcan_env
 
 ## Record software versions in output/log 
